@@ -3,6 +3,8 @@ import router from './router'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import App from './App.vue'
+import {Message} from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 import VueLazyLoad from 'vue-lazyload'
 import VueCookie from 'vue-cookie'
 import store from './store'
@@ -25,8 +27,8 @@ axios.interceptors.response.use(function(response){
     if(path !='#/index'){
       window.location.href = '/#/login'
     }
+    return Promise.reject(res)
   }else{
-    alert(res.msg) 
     return Promise.reject(res)
   }
 })
@@ -36,6 +38,8 @@ Vue.use(VueLazyLoad,{
   loading:'/imgs/loading-svg/loading-bars.svg'
 })
 Vue.use(VueCookie)
+
+Vue.prototype.$Message = Message
 Vue.config.productionTip = false
 
 new Vue({

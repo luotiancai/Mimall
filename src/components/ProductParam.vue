@@ -1,7 +1,7 @@
 <template>
-    <div class="nav-bar" :class="{'is_Fixed':isFixed}">
+    <div class="nav-bar" :class="{'is_fixed':isFixed}">
         <div class="container">
-            <div class="pro-title">xm8</div>
+            <div class="pro-title">{{title}}</div>
             <div class="pro-param">
                 <a href="javascript:;">概述</a><span>|</span>
                 <a href="javascript:;">参数</a><span>|</span>
@@ -14,6 +14,9 @@
 <script>
     export default{
         name:'nav-bar',
+        props:{
+            title:String
+        },
         data(){
             return{
                 isFixed:false
@@ -41,6 +44,7 @@
         line-height: 70px;
         border-top: 1px solid $colorH;
         background-color: #fff;
+        z-index: 10;
         &.is_fixed{
             position: fixed;
             top:0;
@@ -48,20 +52,20 @@
             box-shadow:0 5px 5px $colorE;
         }
         .container{
-            @include flex();
-            .pro-title{
-                font-size: $fontH;
-                color: colorB;
-            }
-            .pro-param{
-                font-size: $fontJ;
-                span{
-                    margin:0 10px;
+                @include flex();
+                .pro-title{
+                    font-size: $fontH;
+                    color: colorB;
                 }
-                a{
-                    color:$colorC;
+                .pro-param{
+                    font-size: $fontJ;
+                    span{
+                        margin:0 10px;
+                    }
+                    a{
+                        color:$colorC;
+                    }
                 }
             }
-        }
     }
 </style>

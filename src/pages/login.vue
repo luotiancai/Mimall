@@ -54,21 +54,28 @@ export default {
         username,
         password
       }).then((res)=>{
-        this.$cookie.set('userId',res.id,{expires:'1M'});
-        // this.$store.dispatch('saveUserName',res.username);
-        this.saveUserName(res.username);
-        this.$router.push('/index');
+          this.$cookie.set('userId',res.id,{expires:'Session'});
+          // this.$store.dispatch('saveUserName',res.username);
+          this.saveUserName(res.username);
+          this.$router.push({
+            name:'index',
+            params:{
+                from:'login'
+            }
+          });
       })
     },
     ...mapActions(['saveUserName']),
     register(){
+      // 如果出现问题，那么根本不会走到then,要用catch获取
       this.axios.post('/user/register',{
-        username:'admin1',
-        password:'admin1',
-        email:'admin1@163.com'
+        username:'cnmmm',
+        password:'cnmmm',
+        email:'admin1@13m.com'
       }).then(()=>{
-          alert('注册成功')
-//         this.$message.success('注册成功');
+          this.$Message.success('注册成功')
+      }).catch((res)=>{
+        this.$Message.warning(res.msg)
       })
     }
   }

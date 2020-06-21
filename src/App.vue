@@ -14,12 +14,16 @@ export default {
     }
   },
   mounted(){
+    if(this.$cookie.get('userid')){
+      this.getUser()
+      this.getCartCount()
+    }
     this.getUser();
     this.getCartCount()
   },
   methods:{
     getUser(){
-      this.axios.get('/user').then((res)=>{
+      this.axios.get('/user').then((res={})=>{
         this.$store.dispatch('saveUserName',res.username);
       })
     },
