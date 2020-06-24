@@ -38,8 +38,8 @@
                   </a>
                 </div>
               </div>
-              <div class="addr-add" >
-                <div class="icon-add"></div>
+              <div class="addr-add" @click="openAddressModal">
+                <div class="icon-add" ></div>
                 <div>添加新地址</div>
               </div>
             </div>
@@ -85,7 +85,7 @@
             </div>
             <div class="item-total">
               <span class="item-name">应付总额：</span>
-              <span class="item-val">2599元</span>
+              <span class="item-val">{{cartTotalPrice}}元</span>
             </div>
           </div>
           <div class="btn-group">
@@ -95,52 +95,136 @@
         </div>
       </div>
     </div>
+    <modal title = "删除确认" btnType = "1" :showModal = "showDelModal" @cancel ="showDelModal = false" @submit = "submitAddress">
+        <template v-slot:body>
+            <p>您确认要是删除吗</p>
+        </template>
+    </modal>
+    <modal title = "添加地址" btnType = "1" :showModal = "showEditModal" @cancel ="showEditModal = false" @submit = "submitAddress">
+        <template v-slot:body>
+            <div class="edit-wrap">
+                <div class="item">
+                    <input type="text" class="input" placeholder="姓名" v-modal = "checkedItem.receiverName">
+                    <input type="text" class="input" placeholder="手机号" v-modal = "checkedItem.receiverMobile">
+                </div>
+                <div class="item">
+                    <select name="province" v-modal = "checkedItem.receiverProvince"></select>
+                    <select name="city" v-modal = "checkedItem.receiverCity"></select>
+                    <select name="district" v-modal = "checkedItem.receiverDistrict"></select>
+                </div>
+                <div class="item" >
+                    <textarea name="street" v-modal = "checkedItem.receiverAddress"></textarea>
+                </div>
+                <div class="item">
+                    <input type="text" class="input" placeholder="邮编" v-modal = "checkedItem.receiverZip">
+                </div>
+            </div>
+        </template>
+    </modal>
   </div>
 </template>
 <script>
+import Modal from './../components/Modal'
 export default{
-  name:'order-confirm',
-  data(){
-    return {
-      list :[],
-      cartList : [],
-      cartTotalPrice : 0,
-      count:0,
-      checkedItem:{},
-      userAction:''
+    name:'order-confirm',
+    data(){
+        return {
+        list :[],
+        cartList : [],
+        cartTotalPrice : 0,
+        count:0,
+        checkedItem:{},
+        userAction:'',
+        showDelModal : false,
+        showEditModal: false
+        }
+    },
+    components:{
+        Modal
+    },
+    mounted(){
+        this.getAddressList()
+        this.getCartList()
+    },
+    methods:{
+        getAddressList(){
+            this.axios.get('/shippings').then((res)=>{
+                this.list = res.list
+            })
+        },
+        openAddressModal(){
+            this.checkedItem = {}
+            this.userAction = 0
+            this.showEditModal = true
+        },
+        getCartList(){
+            this.axios.get('/carts').then((res)=>{
+                let list = res.cartProductVoList
+                this.cartTotalPrice=res.cartTotalPrice
+                this.cartList = list.filter(item=>item.productSelected)
+                this.cartList.map((item)=>{
+                    this.count += item.quantity
+                })
+            })
+        },
+        delAddress(){
+            this.checkedItem = {}
+            this.userAction = 0
+            this.showDelModal = false
+            this.showEditModal = false
+        },
+        submitAddress(){
+            let {checkedItem,userAction} = this
+            let method,url,params={}
+            if(userAction == 0){
+                method = 'post', url ='/shippings'
+            }else if(userAction == 1){
+                method= 'put', url=`/shippings/${checkedItem.id}`
+            }else{
+                method= 'delete', url=`/shippings/${checkedItem.id}`
+            }
+            if(userAction == 0 || userAction == 1){
+                let {receiverName, receiverMobile, receiverProvince, receiverCity, receiverDistrict, receiverAddress, receiverZip} = checkedItem
+                let errMsg=''
+                if(!receiverName){
+                    errMsg='输入收货人名称'
+                }else if(!receiverMobile || !/\d{11}/.test(receiverMobile)){
+                    errMsg ='请输入正确格式的手机号'
+                }else if(!receiverProvince){
+                    errMsg ='请输入省份'
+                }else if(!receiverCity){
+                    errMsg ='请输入对应的城市'
+                }else if(!receiverAddress || !receiverDistrict){
+                    errMsg ='请输入收货地址'
+                }else if(/\d{6}/.test(receiverZip)){
+                    errMsg ='请输入正确邮编'
+                }
+                if(errMsg){
+                    this.$Message.error(errMsg)
+                    return
+                }
+                params={
+                    receiverName,
+                    receiverMobile,
+                    receiverProvince,
+                    receiverCity,
+                    receiverDistrict,
+                    receiverAddress,
+                    receiverZip
+                }
+            }
+            this.axios[method](url,params).then(()=>{
+                this.closeModal()
+                this.getAddressList()
+                this.$message.success('操作成功')
+            })
+        },
+        closeModal(){
+            this.checkedItem = {}
+            this.userAction = ''
+            this.showDelModal = false
+        }
     }
-  },
-  components:{
-  },
-  mounted(){
-      this.getAddressList()
-      this.getCartList()
-  },
-  methods:{
-      getAddressList(){
-          this.axios.get('/shippings').then((res)=>{
-              this.list = res.list
-          })
-      },
-      getCartList(){
-          this.axios.get('/carts').then((res)=>{
-              let list = res.cartProductVoList
-              this.cartTotalPrice=res.cartTotalPrice
-              this.cartList = list.filter(item=>item.productSelected)
-              this.cartList.map((item)=>{
-                  this.count += item.quantity
-              })
-          })
-      },
-      delAddress(item){
-          this.checkedItem = item
-          this.userAction = 2
-
-      },
-      submitAddress(){
-          
-      }
-  }
 
 }
 </script>
