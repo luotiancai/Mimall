@@ -14,8 +14,8 @@
                     <a href="javascript:;" class="btn" v-if="btnType==1" @click="$emit('submit')">{{sureText}}</a>
                     <a href="javascript:;" class="btn" v-if="btnType==2" @click="$emit('cancel')">{{cancelText}}</a>
                     <div class="btn-group" v-if="btnType==3">
-                        <a href="javascript:;" class="btn">确定</a>
-                        <a href="javascript:;" class="btn btn-default">取消</a>
+                        <a href="javascript:;" class="btn" @click="$emit('submit')">{{sureText}}</a>
+                        <a href="javascript:;" class="btn btn-default" @click="$emit('cancel')">{{cancelText}}</a>
                     </div>
                 </div>
             </div>

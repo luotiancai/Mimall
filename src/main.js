@@ -29,9 +29,15 @@ axios.interceptors.response.use(function(response){
     }
     return Promise.reject(res)
   }else{
+    Message.warning(res.msg)
     return Promise.reject(res)
   }
-})
+},(error)=>{
+  let res = error.response
+  alert(res)
+  return Promise.reject(res)
+}
+)
 
 Vue.use(VueAxios,axios)
 Vue.use(VueLazyLoad,{
